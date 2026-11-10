@@ -10,6 +10,7 @@ export interface SettlementTask {
 export interface PayoutRecord {
   id: number;
   taskId: string;
+  accountId: string;
   payoutReference: string;
   amount: number;
   settlementRunId: string;

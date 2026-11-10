@@ -1,11 +1,11 @@
-node.exe : npm notice run must-settlement-qa@1.0.0 verify-fix
-At line:1 char:1
-+ & "C:\Program Files\nodejs/node.exe" "C:\Users\UR\AppData\Roaming\npm ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (npm notice run ....0.0 verify-fix:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-npm notice run tsc --pretty false && node dist/scripts/verify-fix.js
-Partial failure acknowledged: Settlement failed after 70 successful payouts at task task-71
-Retry successful: 30 payouts, duplicateCount=0, totalTasks=100
-PASS: corrected implementation prevents duplicate payouts and preserves 100 unique successful payouts
+
+> must-settlement-qa@1.0.0 verify-fix
+> tsc --pretty false && node dist/scripts/verify-fix.js
+
+(node:19264) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Partial failure reproduced: Settlement failed after 70 successful payouts at task task-71
+Retry processed 30 remaining tasks
+Financial integrity: payoutRecords=100, uniqueTaskIds=100, successfulCredits=1000, duplicateTaskIds=0
+Original 70 payouts unchanged: true
+PASS: corrected retry preserves the original 70 payouts and adds exactly 30 unique payouts (100 payouts, 1,000 credits total)

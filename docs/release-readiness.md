@@ -39,6 +39,9 @@
 ## Known limitations
 - This is a fictional assessment project, not a real financial system.
 - External integrations are simulated, not connected to production APIs.
+- Configuration effective-time and account ownership behavior are assessment assumptions requiring product-owner confirmation.
+- Explicit atomicity across payout and settlement-run status updates has not been implemented or verified.
+- Local test success is not production-readiness evidence.
 
 ## Approval and release decision
 - Safe for review and publication as a QA assessment repository.

@@ -1,6 +1,6 @@
 # MUST Settlement QA — Duplicate Payout Prevention
 
-This project demonstrates a settlement system for a fictional rewards platform and intentionally reproduces a duplicate payout bug before fixing it.
+This project demonstrates settlement QA for a fictional rewards platform. It includes a deliberately faulty implementation that reproduces duplicate payouts after a partial failure, followed by a corrected implementation and regression coverage. The simulated defect is not evidence of an actual MUST production incident.
 
 ## What this project demonstrates
 
@@ -12,14 +12,16 @@ This project demonstrates a settlement system for a fictional rewards platform a
 
 ## Prerequisites
 
-- Node.js 20+
+- Node.js 22.13.0 or later (the project uses the built-in `node:sqlite` module)
 - npm
 
-## Installation
+## Fresh clone installation
 
 ```bash
-npm install
+npm ci
 ```
+
+`package-lock.json` pins the dependency tree. No browser installation is required because the Playwright tests exercise the service and SQLite layer directly.
 
 ## Project structure
 
@@ -35,7 +37,7 @@ npm install
 npm run faulty-demo
 ```
 
-This should fail because the faulty implementation creates duplicate payouts after a simulated partial failure.
+This intentionally exits with a failing result after demonstrating the simulated duplicate payout. It is not a real production incident.
 
 ## Verify the fix
 
@@ -54,3 +56,5 @@ npm test
 ```bash
 npm run build
 ```
+
+See [directive.md](directive.md) for the reviewer guide, implementation details, test evidence, and documentation index.

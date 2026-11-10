@@ -22,7 +22,17 @@ export interface SettlementResult {
 }
 
 export function getEffectiveConfiguration(db: DatabaseSync): { creditValue: number; effectiveFrom: string } {
-  const row = db.prepare(`SELECT value, effective_from AS effectiveFrom FROM settlement_configs ORDER BY effective_from DESC LIMIT 1`).get() as { value: number; effectiveFrom: string } | undefined;
+  return getEffectiveConfigurationAt(db, new Date());
+}
+
+export function getEffectiveConfigurationAt(db: DatabaseSync, effectiveAt: Date): { creditValue: number; effectiveFrom: string } {
+  const row = db.prepare(`
+    SELECT value, effective_from AS effectiveFrom
+    FROM settlement_configs
+    WHERE key = 'credit_value' AND effective_from <= ?
+    ORDER BY effective_from DESC
+    LIMIT 1
+  `).get(effectiveAt.toISOString()) as { value: number; effectiveFrom: string } | undefined;
   const creditValue = row?.value ?? 10;
   return { creditValue, effectiveFrom: row?.effectiveFrom ?? '2024-01-01T00:00:00.000Z' };
 }
@@ -37,7 +47,7 @@ export function runSettlement(options: SettlementOptions): SettlementResult {
   const settlementId = options.settlementId ?? randomUUID();
   const window = getSettlementWindow(referenceDate);
   const settlementKey = window.key;
-  const creditValue = getCreditValue(db);
+  const creditValue = getCreditValue(db, referenceDate);
   const now = new Date().toISOString();
 
   db.prepare(`INSERT INTO settlement_runs (id, settlement_key, status, started_at, completed_at, total_successful, total_value, failure_task_id)
@@ -73,8 +83,8 @@ export function runSettlement(options: SettlementOptions): SettlementResult {
     }
 
     const payoutReference = `${settlementId}:${task.id}`;
-    db.prepare(`INSERT INTO payouts (task_id, payout_reference, amount, settlement_run_id, status, created_at, notification_sent)
-      VALUES (?, ?, ?, ?, 'successful', ?, 0)`).run(task.id, payoutReference, creditValue, settlementId, new Date().toISOString());
+    db.prepare(`INSERT INTO payouts (task_id, account_id, payout_reference, amount, settlement_run_id, status, created_at, notification_sent)
+      VALUES (?, ?, ?, ?, ?, 'successful', ?, 0)`).run(task.id, task.accountId, payoutReference, creditValue, settlementId, new Date().toISOString());
 
     successfulTaskIds.push(task.id);
     totalSuccessful += 1;

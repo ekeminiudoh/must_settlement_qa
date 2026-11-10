@@ -1,10 +1,10 @@
-node.exe : npm notice run must-settlement-qa@1.0.0 faulty-demo
-At line:1 char:1
-+ & "C:\Program Files\nodejs/node.exe" "C:\Users\UR\AppData\Roaming\npm ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (npm notice run ...0.0 faulty-demo:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-npm notice run tsc --pretty false && node dist/scripts/reproduce-defect.js
-FAILED: duplicate payout defect reproduced
-Settlement failed after 70 successful payouts at task task-71
+
+> must-settlement-qa@1.0.0 faulty-demo
+> tsc --pretty false && node dist/scripts/reproduce-defect.js
+
+(node:16256) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Partial failure reproduced: Settlement failed after 70 successful payouts at task task-71
+Faulty retry processed 100 tasks that included already-paid tasks
+Observed after retry: payoutRecords=170, uniqueTaskIds=100, duplicateTaskIds=70, successfulCredits=1700
+FAIL (expected defect): safe settlement requires 100 payout records and 1,000 credits; faulty retry produced duplicates.

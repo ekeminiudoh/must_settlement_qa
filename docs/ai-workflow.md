@@ -1,6 +1,8 @@
 # AI-assisted QA workflow
 
-This project used AI assistance to:
+## AI assistance
+
+AI assistance was used to:
 
 - identify the highest-priority business risk: duplicate payouts after partial settlement failure
 - generate deterministic edge-case scenarios for UTC boundary checks
@@ -9,4 +11,8 @@ This project used AI assistance to:
 - add regression coverage for retry and notification behaviour
 - write review documentation and release-readiness evidence
 
-Human verification remains the final authority for business rules, release decisions and evidence review. AI suggestions were used as an accelerator, not as a substitute for engineering judgment.
+AI-generated suggestions and implementation drafts are not presented as independent proof of correctness or as MUST policy.
+
+## Human responsibility and verification
+
+The assessment owner remains responsible for confirming business rules, reviewing the implementation and evidence, deciding release readiness, and resolving product-owner assumptions. The reported test output comes from actual local command execution. Test results establish only the behavior of this assessment implementation and are not evidence of a real MUST incident or production validation.

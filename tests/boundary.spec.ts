@@ -24,7 +24,7 @@ test('TC04 Nigerian timezone conversion boundary', () => {
 });
 
 test('accounts outside window are not paid', () => {
-  const db = createDatabase(`./data/test-boundary-${Date.now()}.db`);
+  const db = createDatabase(':memory:');
   resetDatabase(db);
   const tasks = getTaskSet();
   const result = runSettlement({ db, tasks, referenceDate: new Date('2024-01-16T09:00:00.000Z') });

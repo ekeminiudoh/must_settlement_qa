@@ -5,16 +5,21 @@ import { getSettlementWindow, isTaskEligible } from '../src/time-utils.js';
 import type { SettlementTask } from '../src/types.js';
 
 function createTestDb() {
-  const db = createDatabase(`./data/test-settlement-${Date.now()}.db`);
+  const db = createDatabase(':memory:');
   resetDatabase(db);
   return db;
 }
 
 test('TC01: normal qualifying task receives 10 credits', () => {
+  const db = createTestDb();
   const reference = new Date('2024-01-16T09:00:00.000Z');
-  const window = getSettlementWindow(reference);
   const task: SettlementTask = { id: 'task-qualifies', accountId: 'acct-1', completedAt: '2024-01-08T10:00:00.000Z' };
-  expect(isTaskEligible(task.completedAt, window.start, window.end)).toBe(true);
+
+  const result = runSettlement({ db, tasks: [task], referenceDate: reference, settlementId: 'tc01-run' });
+  const payout = db.prepare(`SELECT amount FROM payouts WHERE task_id = ?`).get(task.id) as { amount: number };
+
+  expect(result.totalSuccessful).toBe(1);
+  expect(payout.amount).toBe(10);
 });
 
 test('TC02: task completed exactly at Monday 00:00 UTC is included', () => {

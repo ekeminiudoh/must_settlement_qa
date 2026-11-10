@@ -11,7 +11,7 @@ export function ensureDatabaseFile(filePath: string): string {
 }
 
 export function createDatabase(filePath: string = './data/must-settlement.db'): DatabaseConnection {
-  const resolvedPath = ensureDatabaseFile(filePath);
+  const resolvedPath = filePath === ':memory:' ? filePath : ensureDatabaseFile(filePath);
   const db = new DatabaseSync(resolvedPath);
   db.exec('PRAGMA journal_mode = WAL;');
   db.exec('PRAGMA foreign_keys = ON;');
@@ -24,9 +24,10 @@ export function createDatabase(filePath: string = './data/must-settlement.db'): 
     );
 
     CREATE TABLE IF NOT EXISTS settlement_configs (
-      key TEXT PRIMARY KEY,
+      key TEXT NOT NULL,
       value INTEGER NOT NULL,
-      effective_from TEXT NOT NULL
+      effective_from TEXT NOT NULL,
+      PRIMARY KEY (key, effective_from)
     );
 
     CREATE TABLE IF NOT EXISTS settlement_runs (
@@ -43,6 +44,7 @@ export function createDatabase(filePath: string = './data/must-settlement.db'): 
     CREATE TABLE IF NOT EXISTS payouts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       task_id TEXT NOT NULL UNIQUE,
+      account_id TEXT NOT NULL,
       payout_reference TEXT NOT NULL UNIQUE,
       amount INTEGER NOT NULL,
       settlement_run_id TEXT NOT NULL,
@@ -83,8 +85,14 @@ export function insertTask(db: DatabaseConnection, task: { id: string; accountId
   );
 }
 
-export function getCreditValue(db: DatabaseConnection): number {
-  const row = db.prepare(`SELECT value FROM settlement_configs ORDER BY effective_from DESC LIMIT 1`).get() as { value: number } | undefined;
+export function getCreditValue(db: DatabaseConnection, effectiveAt: Date): number {
+  const row = db.prepare(`
+    SELECT value
+    FROM settlement_configs
+    WHERE key = 'credit_value' AND effective_from <= ?
+    ORDER BY effective_from DESC
+    LIMIT 1
+  `).get(effectiveAt.toISOString()) as { value: number } | undefined;
   return row?.value ?? 10;
 }
 

@@ -15,7 +15,7 @@
 - Actual result: The faulty implementation creates duplicates after retry.
 - Evidence: See [../scripts/reproduce-defect.ts](../scripts/reproduce-defect.ts) and the captured output in [../evidence/logs](../evidence/logs).
 - Root cause: The faulty implementation performed insert operations without checking whether the task already had a payout record.
-- Proposed fix: Add database-level uniqueness on `task_id`, task-level idempotency checks before insert, and ensure transaction boundaries preserve successful writes.
+- Proposed fix: Add database-level uniqueness on `task_id` and an application-level idempotency check before insert. The local SQLite statement commits independently; broader transaction/recovery semantics remain a production design concern.
 - Regression coverage: Covered in [../tests/retry.spec.ts](../tests/retry.spec.ts).
 - Release-blocking rationale: The issue directly affects rewards correctness and should block release until the idempotency issue is fixed.
 

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { createDatabase, resetDatabase } from '../src/database.js';
-import { runSettlement } from '../src/settlement.js';
+import { getEffectiveConfigurationAt, runSettlement, setConfiguration } from '../src/settlement.js';
 import { sendNotification } from '../src/notification.js';
 import type { SettlementTask } from '../src/types.js';
 
@@ -11,8 +11,8 @@ function buildTasks(): SettlementTask[] {
   ];
 }
 
-test('TC08: notification failure does not reverse successful payout records', () => {
-  const db = createDatabase(`./data/test-notification-${Date.now()}.db`);
+test('TC08: notification failure does not roll back a successful payout', () => {
+  const db = createDatabase(':memory:');
   resetDatabase(db);
   const tasks = buildTasks();
   const result = runSettlement({ db, tasks, referenceDate: new Date('2024-01-16T09:00:00.000Z') });
@@ -26,17 +26,46 @@ test('TC08: notification failure does not reverse successful payout records', ()
   expect(persisted.status).toBe('successful');
 });
 
-test('TC09: admin settlement configuration changes follow an explicitly documented effective-configuration rule', () => {
-  const db = createDatabase(`./data/test-config-${Date.now()}.db`);
+test('TC09: settlement uses the latest configuration effective at its run time', () => {
+  const db = createDatabase(':memory:');
   resetDatabase(db);
-  const first = db.prepare(`SELECT value FROM settlement_configs ORDER BY effective_from DESC LIMIT 1`).get() as { value: number };
-  expect(first.value).toBe(10);
+  setConfiguration(db, 15, '2024-01-10T00:00:00.000Z');
+  setConfiguration(db, 20, '2024-01-20T00:00:00.000Z');
+
+  const runDate = new Date('2024-01-16T09:00:00.000Z');
+  expect(getEffectiveConfigurationAt(db, runDate)).toEqual({
+    creditValue: 15,
+    effectiveFrom: '2024-01-10T00:00:00.000Z',
+  });
+
+  const result = runSettlement({
+    db,
+    tasks: [{ id: 'config-effective', accountId: 'acct-config', completedAt: '2024-01-08T09:00:00.000Z' }],
+    referenceDate: runDate,
+    settlementId: 'config-effective-run',
+  });
+  const payout = db.prepare(`SELECT amount FROM payouts WHERE task_id = ?`).get('config-effective') as { amount: number };
+  expect(result.totalValue).toBe(15);
+  expect(payout.amount).toBe(15);
+
+  const nextRun = runSettlement({
+    db,
+    tasks: [{ id: 'config-next', accountId: 'acct-config', completedAt: '2024-01-15T09:00:00.000Z' }],
+    referenceDate: new Date('2024-01-23T09:00:00.000Z'),
+    settlementId: 'config-next-run',
+  });
+  const nextPayout = db.prepare(`SELECT amount FROM payouts WHERE task_id = ?`).get('config-next') as { amount: number };
+  expect(nextRun.totalValue).toBe(20);
+  expect(nextPayout.amount).toBe(20);
 });
 
-test('TC10: account changes during settlement follow a clearly documented account ownership assumption', () => {
+test('TC10: payout uses the account ID captured in the settlement task snapshot', () => {
   const tasks: SettlementTask[] = [{ id: 'owner-test', accountId: 'acct-9', completedAt: '2024-01-08T12:00:00.000Z' }];
-  const db = createDatabase(`./data/test-account-${Date.now()}.db`);
+  const db = createDatabase(':memory:');
   resetDatabase(db);
   const result = runSettlement({ db, tasks, referenceDate: new Date('2024-01-16T09:00:00.000Z') });
+  const payout = db.prepare(`SELECT account_id AS accountId FROM payouts WHERE task_id = ?`).get('owner-test') as { accountId: string };
+
   expect(result.successfulTaskIds).toEqual(['owner-test']);
+  expect(payout.accountId).toBe('acct-9');
 });

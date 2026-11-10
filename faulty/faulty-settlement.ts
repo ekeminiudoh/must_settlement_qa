@@ -7,8 +7,10 @@ import { getSettlementWindow, isTaskEligible } from '../src/time-utils.js';
 import type { SettlementTask, SettlementRun } from '../src/types.js';
 
 export function createFaultyDatabase(filePath = './data/faulty-settlement.db'): DatabaseSync {
-  const resolved = path.resolve(filePath);
-  fs.mkdirSync(path.dirname(resolved), { recursive: true });
+  const resolved = filePath === ':memory:' ? filePath : path.resolve(filePath);
+  if (resolved !== ':memory:') {
+    fs.mkdirSync(path.dirname(resolved), { recursive: true });
+  }
   const db = new DatabaseSync(resolved);
   db.exec('PRAGMA journal_mode = WAL;');
   db.exec('PRAGMA foreign_keys = ON;');
@@ -21,9 +23,10 @@ export function createFaultyDatabase(filePath = './data/faulty-settlement.db'): 
     );
 
     CREATE TABLE IF NOT EXISTS settlement_configs (
-      key TEXT PRIMARY KEY,
+      key TEXT NOT NULL,
       value INTEGER NOT NULL,
-      effective_from TEXT NOT NULL
+      effective_from TEXT NOT NULL,
+      PRIMARY KEY (key, effective_from)
     );
 
     CREATE TABLE IF NOT EXISTS settlement_runs (
@@ -40,6 +43,7 @@ export function createFaultyDatabase(filePath = './data/faulty-settlement.db'): 
     CREATE TABLE IF NOT EXISTS payouts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       task_id TEXT NOT NULL,
+      account_id TEXT NOT NULL,
       payout_reference TEXT NOT NULL,
       amount INTEGER NOT NULL,
       settlement_run_id TEXT NOT NULL,
@@ -94,7 +98,7 @@ export function runFaultySettlement(options: FaultySettlementOptions): FaultySet
   const settlementId = options.settlementId ?? randomUUID();
   const window = getSettlementWindow(referenceDate);
   const settlementKey = window.key;
-  const creditValue = getCreditValue(db);
+  const creditValue = getCreditValue(db, referenceDate);
   const now = new Date().toISOString();
 
   db.prepare(`INSERT INTO settlement_runs (id, settlement_key, status, started_at, completed_at, total_successful, total_value, failure_task_id)
@@ -123,8 +127,8 @@ export function runFaultySettlement(options: FaultySettlementOptions): FaultySet
     }
 
     const payoutReference = `${settlementId}:${task.id}`;
-    db.prepare(`INSERT INTO payouts (task_id, payout_reference, amount, settlement_run_id, status, created_at, notification_sent)
-      VALUES (?, ?, ?, ?, 'successful', ?, 0)`).run(task.id, payoutReference, creditValue, settlementId, new Date().toISOString());
+    db.prepare(`INSERT INTO payouts (task_id, account_id, payout_reference, amount, settlement_run_id, status, created_at, notification_sent)
+      VALUES (?, ?, ?, ?, ?, 'successful', ?, 0)`).run(task.id, task.accountId, payoutReference, creditValue, settlementId, new Date().toISOString());
 
     successfulTaskIds.push(task.id);
     totalSuccessful += 1;

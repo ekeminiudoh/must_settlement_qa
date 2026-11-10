@@ -16,10 +16,10 @@ Application status fields can be out of sync or absent after a process crash. Da
 
 A unique index on `payouts.task_id` turns a duplicate insert into a deterministic failure, while application-level checks allow the settlement engine to skip already-paid tasks safely during retries.
 
-## How transaction boundaries affect recovery
+## How transaction handling affects recovery
 
-Each task can be committed in a small transaction so successful writes survive partial failure without rolling back the whole run. This preserves the first 70 successful payouts while still allowing the queue to continue on retry.
+Each payout insert is an individual SQLite statement in autocommit mode; the assessment does not wrap payout insertion and run-status updates in a larger explicit transaction. Consequently, successful payout rows survive a later simulated failure. On retry, the unique task constraint and idempotency check skip those rows and process the remainder. A production design would need to define and test how payout writes and run status updates recover if a process crashes between those operations.
 
 ## What happens if payout succeeds but notification fails
 
-A successful payout must remain committed. Notification delivery is a separate concern and should be logged as failed without reversing the successful payout record.
+A successful payout must remain committed. Notification delivery is a separate concern and should be logged as failed without rolling back or reversing the successful payout record.
