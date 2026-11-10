@@ -1,0 +1,11 @@
+node.exe : npm notice run must-settlement-qa@1.0.0 verify-fix
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\UR\AppData\Roaming\npm ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm notice run ....0.0 verify-fix:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+npm notice run tsc --pretty false && node dist/scripts/verify-fix.js
+Partial failure acknowledged: Settlement failed after 70 successful payouts at task task-71
+Retry successful: 30 payouts, duplicateCount=0, totalTasks=100
+PASS: corrected implementation prevents duplicate payouts and preserves 100 unique successful payouts

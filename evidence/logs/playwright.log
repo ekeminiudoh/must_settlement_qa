@@ -1,0 +1,26 @@
+node.exe : npm notice run must-settlement-qa@1.0.0 test
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\UR\AppData\Roaming\npm ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm notice run ...t-qa@1.0.0 test:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+npm notice run playwright test --reporter=line
+
+Running 14 tests using 4 workers
+
+[1/14] tests\boundary.spec.ts:15:1 › TC02 and TC03 boundary behaviour
+[2/14] tests\retry.spec.ts:19:1 › TC06: settlement fails after 70 successful payouts and preserves those payouts
+[3/14] tests\settlement.spec.ts:13:1 › TC01: normal qualifying task receives 10 credits
+[4/14] tests\notification.spec.ts:14:1 › TC08: notification failure does not reverse successful payout records
+[5/14] tests\boundary.spec.ts:21:1 › TC04 Nigerian timezone conversion boundary
+[6/14] tests\boundary.spec.ts:26:1 › accounts outside window are not paid
+[7/14] tests\settlement.spec.ts:20:1 › TC02: task completed exactly at Monday 00:00 UTC is included
+[8/14] tests\settlement.spec.ts:25:1 › TC03: task completed exactly at the following Monday 00:00 UTC is excluded
+[9/14] tests\settlement.spec.ts:30:1 › TC04: Nigerian local time UTC+1 is correctly converted to UTC for eligibility
+[10/14] tests\notification.spec.ts:29:1 › TC09: admin settlement configuration changes follow an explicitly documented effective-configuration rule
+[11/14] tests\settlement.spec.ts:36:1 › TC05: duplicate task submission does not generate another payout
+[12/14] tests\retry.spec.ts:30:1 › TC07: retrying settlement does not duplicate the first 70 payouts
+[13/14] tests\notification.spec.ts:36:1 › TC10: account changes during settlement follow a clearly documented account ownership assumption
+[14/14] tests\retry.spec.ts:46:1 › faulty implementation produces duplicate payouts during retry
+  14 passed (2.5s)

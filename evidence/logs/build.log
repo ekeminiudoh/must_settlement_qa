@@ -1,0 +1,8 @@
+node.exe : npm notice run must-settlement-qa@1.0.0 build
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\UR\AppData\Roaming\npm ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm notice run ...-qa@1.0.0 build:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+npm notice run tsc --pretty false

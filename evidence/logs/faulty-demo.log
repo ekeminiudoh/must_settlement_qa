@@ -1,0 +1,10 @@
+node.exe : npm notice run must-settlement-qa@1.0.0 faulty-demo
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\UR\AppData\Roaming\npm ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm notice run ...0.0 faulty-demo:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+npm notice run tsc --pretty false && node dist/scripts/reproduce-defect.js
+FAILED: duplicate payout defect reproduced
+Settlement failed after 70 successful payouts at task task-71
