@@ -15,4 +15,6 @@ AI-generated suggestions and implementation drafts are not presented as independ
 
 ## Human responsibility and verification
 
-The assessment owner remains responsible for confirming business rules, reviewing the implementation and evidence, deciding release readiness, and resolving product-owner assumptions. The reported test output comes from actual local command execution. Test results establish only the behavior of this assessment implementation and are not evidence of a real MUST incident or production validation.
+The assessment owner supplied the assessment requirements and remains responsible for personally reviewing the final changes, confirming business rules, deciding release readiness, and resolving product-owner assumptions. In this session, the AI assistant performed the implementation edits and ran the commands recorded in the evidence logs.
+
+The owner should review the final diff and test evidence before presenting or making any release decision. This record does not claim that the owner manually authored every line or personally executed the commands. Test output is from actual local execution and establishes only the behavior of this assessment implementation; it is not evidence of a real MUST incident or production validation.
